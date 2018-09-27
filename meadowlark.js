@@ -1,4 +1,5 @@
 var express = require('express');
+var fortune = require('./fortune');
 
 var app = express();
 var handlebars = require('express3-handlebars').create({ defaultLayout:'main' });
@@ -7,19 +8,28 @@ app.set('view engine', 'handlebars');
 
 app.set('port', process.env.PORT || 3000);
 
+app.use(function(req,res, next){
+	res.locals.showTests = app.get('env') !== 'production' && req.query.test === '1';
+	next();
+});
+
 app.get("/", function(req, res){
   res.render("home");
 });
 
-var fortunes = [
-	"Conquer your fears or htey will conquer you.",
-	"Rivers need springs.",
-	"Do not fear what you don't know.",
-	"Whenever possible, keep it simple.",
-];
+app.get('/tours/hood-river',function(req, res){
+	res.render('tours/hood-river');
+});
 
-app.get("/about", function(req, res){
-  res.render("about");
+app.get('/tours/request-group-rate', function(req, res){
+    res.render('tours/request-group-rate');
+});
+
+app.get('/about', function(req, res){
+  res.render('about',{
+	fortune: fortune.getFortune(),
+	pageTestScript: '/qa/tests-about.js'
+ } );
 });
 
 app.get("/travel", function(req, res){
